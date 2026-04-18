@@ -36,7 +36,7 @@ export async function getUserProfile(username) {
 }
 
 export async function getTopLanguages(username) {
-  const repos = await fetchGitHub(`/users/${username}/repos?per_page=100&sort=pushed`);
+  const repos = await fetchGitHub(`/user/repos?per_page=100&sort=pushed&affiliation=owner`);
 
   const langMap = {};
   const langFetches = repos
