@@ -1,0 +1,245 @@
+---
+const { profile } = Astro.props;
+---
+
+<section class="profile fade-up">
+  <div class="profile-avatar-wrap">
+    <div class="avatar-ring">
+      <img
+        src={profile.avatar_url}
+        alt={profile.name || profile.login}
+        class="avatar"
+        width="96"
+        height="96"
+      />
+    </div>
+    <span class="status-dot" title="Active"></span>
+  </div>
+
+  <div class="profile-info">
+    <div class="profile-name-row">
+      <h1 class="profile-name">{profile.name || profile.login}</h1>
+      <a href={profile.html_url} target="_blank" rel="noopener noreferrer" class="github-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
+        </svg>
+        @{profile.login}
+      </a>
+    </div>
+
+    {profile.bio && (
+      <p class="profile-bio">{profile.bio}</p>
+    )}
+
+    <div class="profile-meta">
+      {profile.location && (
+        <span class="meta-item">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          {profile.location}
+        </span>
+      )}
+      {profile.blog && (
+        <a href={profile.blog.startsWith('http') ? profile.blog : `https://${profile.blog}`} target="_blank" rel="noopener noreferrer" class="meta-item meta-link">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+          </svg>
+          {profile.blog.replace(/^https?:\/\//, '')}
+        </a>
+      )}
+    </div>
+
+    <div class="profile-stats">
+      <div class="stat-item">
+        <span class="stat-value">{profile.public_repos}</span>
+        <span class="stat-label">Repos</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-value">{profile.followers}</span>
+        <span class="stat-label">Followers</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-value">{profile.following}</span>
+        <span class="stat-label">Following</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .profile {
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+    padding: 32px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow), var(--shadow-accent);
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .profile::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.4;
+  }
+
+  .profile-avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .avatar-ring {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    padding: 2px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  }
+
+  .avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    display: block;
+    border: 2px solid var(--bg-card);
+  }
+
+  .status-dot {
+    position: absolute;
+    bottom: 4px; right: 4px;
+    width: 14px; height: 14px;
+    background: var(--accent-3);
+    border-radius: 50%;
+    border: 2px solid var(--bg-card);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  .profile-info { flex: 1; min-width: 0; }
+
+  .profile-name-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+
+  .profile-name {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+  }
+
+  .github-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--accent);
+    text-decoration: none;
+    border: 1px solid var(--border-accent);
+    padding: 4px 10px;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+    background: var(--accent-glow);
+  }
+
+  .github-link:hover {
+    border-color: var(--accent);
+    background: rgba(91, 141, 238, 0.2);
+    color: #fff;
+  }
+
+  .profile-bio {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 14px;
+    line-height: 1.6;
+  }
+
+  .profile-meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  .meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+
+  .meta-link {
+    text-decoration: none;
+    color: var(--text-muted);
+    transition: color 0.2s ease;
+  }
+
+  .meta-link:hover { color: var(--accent); }
+
+  .profile-stats {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .stat-value {
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .stat-divider {
+    width: 1px;
+    height: 28px;
+    background: var(--border);
+  }
+
+  @media (max-width: 560px) {
+    .profile {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 24px 20px;
+    }
+    .profile-name-row { justify-content: center; }
+    .profile-meta { justify-content: center; }
+    .profile-stats { justify-content: center; }
+  }
+</style>

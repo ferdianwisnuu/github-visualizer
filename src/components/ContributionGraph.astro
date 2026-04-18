@@ -1,0 +1,262 @@
+---
+const { data } = Astro.props;
+const { total, weeks } = data;
+
+const months = [];
+let currentMonth = -1;
+weeks.forEach((week, wi) => {
+  const firstDay = week.contributionDays[0];
+  const month = new Date(firstDay.date).getMonth();
+  if (month !== currentMonth) {
+    months.push({ label: new Date(firstDay.date).toLocaleString('en', { month: 'short' }), weekIndex: wi });
+    currentMonth = month;
+  }
+});
+
+function getLevelClass(count) {
+  if (count === 0) return 'l0';
+  if (count <= 2) return 'l1';
+  if (count <= 5) return 'l2';
+  if (count <= 9) return 'l3';
+  if (count <= 14) return 'l4';
+  return 'l5';
+}
+---
+
+<section class="contrib-section fade-up fade-up-delay-2">
+  <div class="section-header">
+    <h2 class="section-title">Contribution Graph</h2>
+    <span class="contrib-total">
+      <span class="total-number">{total.toLocaleString()}</span>
+      contributions this year
+    </span>
+  </div>
+
+  <div class="graph-card">
+    <div class="graph-scroll-wrapper">
+      <div class="graph-container">
+        <div class="month-labels">
+          {months.map(m => (
+            <span class="month-label" style={`grid-column: ${m.weekIndex + 1}`}>{m.label}</span>
+          ))}
+        </div>
+
+        <div class="graph-body">
+          <div class="day-labels">
+            <span>Mon</span>
+            <span></span>
+            <span>Wed</span>
+            <span></span>
+            <span>Fri</span>
+            <span></span>
+            <span>Sun</span>
+          </div>
+
+          <div class="weeks-grid">
+            {weeks.map(week => (
+              <div class="week-col">
+                {week.contributionDays.map(day => (
+                  <div
+                    class={`day-cell ${getLevelClass(day.contributionCount)}`}
+                    data-date={day.date}
+                    data-count={day.contributionCount}
+                  ></div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div class="graph-legend">
+          <span class="legend-label">Less</span>
+          <div class="legend-cells">
+            <div class="day-cell l0"></div>
+            <div class="day-cell l1"></div>
+            <div class="day-cell l2"></div>
+            <div class="day-cell l3"></div>
+            <div class="day-cell l4"></div>
+            <div class="day-cell l5"></div>
+          </div>
+          <span class="legend-label">More</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tooltip" id="graph-tooltip"></div>
+  </div>
+</section>
+
+<style>
+  .contrib-section { margin-bottom: 24px; }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+  }
+
+  .contrib-total {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+
+  .total-number {
+    color: var(--accent-3);
+    font-weight: 700;
+  }
+
+  .graph-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .graph-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent-3), transparent);
+    opacity: 0.3;
+  }
+
+  .graph-scroll-wrapper {
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .graph-container { min-width: 600px; }
+
+  .month-labels {
+    display: grid;
+    grid-template-columns: 32px repeat(53, 12px);
+    gap: 2px;
+    margin-bottom: 4px;
+    padding-left: 2px;
+  }
+
+  .month-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .graph-body { display: flex; gap: 6px; }
+
+  .day-labels {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-top: 2px;
+    width: 26px;
+    flex-shrink: 0;
+  }
+
+  .day-labels span {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    height: 12px;
+    line-height: 12px;
+    text-align: right;
+  }
+
+  .weeks-grid { display: flex; gap: 2px; }
+
+  .week-col { display: flex; flex-direction: column; gap: 2px; }
+
+  .day-cell {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    transition: transform 0.1s ease, outline 0.1s ease;
+    cursor: pointer;
+  }
+
+  .day-cell:hover {
+    transform: scale(1.3);
+    outline: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .day-cell.l0 { background: var(--contribution-0); }
+  .day-cell.l1 { background: var(--contribution-1); }
+  .day-cell.l2 { background: var(--contribution-2); }
+  .day-cell.l3 { background: var(--contribution-3); }
+  .day-cell.l4 { background: var(--contribution-4); }
+  .day-cell.l5 { background: var(--contribution-5); }
+
+  .graph-legend {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  .legend-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+  }
+
+  .legend-cells { display: flex; gap: 2px; }
+
+  .tooltip {
+    position: fixed;
+    background: #1a1a2e;
+    border: 1px solid var(--border-accent);
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 100;
+    white-space: nowrap;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  }
+</style>
+
+<script>
+  const tooltip = document.getElementById('graph-tooltip');
+  const cells = document.querySelectorAll('.day-cell[data-date]');
+
+  cells.forEach(cell => {
+    cell.addEventListener('mousemove', (e) => {
+      const count = cell.dataset.count;
+      const date = new Date(cell.dataset.date + 'T00:00:00');
+      const label = count === '0'
+        ? `No contributions on ${date.toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })}`
+        : `${count} contribution${count > 1 ? 's' : ''} on ${date.toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+
+      tooltip.textContent = label;
+      tooltip.style.opacity = '1';
+      tooltip.style.left = `${e.clientX + 12}px`;
+      tooltip.style.top = `${e.clientY - 32}px`;
+    });
+
+    cell.addEventListener('mouseleave', () => {
+      tooltip.style.opacity = '0';
+    });
+  });
+</script>

@@ -1,0 +1,136 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Profile from '../components/Profile.astro';
+import ContributionGraph from '../components/ContributionGraph.astro';
+import TopLanguages from '../components/TopLanguages.astro';
+import { getUserProfile, getTopLanguages, getContributionData } from '../lib/github.js';
+
+const username = import.meta.env.GITHUB_USERNAME || 'ferdianwisuu';
+
+let profile = null;
+let languages = [];
+let contributions = null;
+let fetchError = null;
+
+try {
+  [profile, languages, contributions] = await Promise.all([
+    getUserProfile(username),
+    getTopLanguages(username),
+    getContributionData(username)
+  ]);
+} catch (err) {
+  fetchError = err.message;
+}
+---
+
+<BaseLayout title={profile ? `${profile.name || profile.login} — GitHub` : 'GitHub Visualizer'}>
+  {fetchError ? (
+    <div class="error-state">
+      <span class="error-icon">⚠</span>
+      <p>Failed to load GitHub data</p>
+      <code>{fetchError}</code>
+    </div>
+  ) : (
+    <>
+      <header class="page-header fade-up">
+        <div class="header-label">
+          <span class="dot"></span>
+          github profile
+        </div>
+        <time class="header-time" id="current-time"></time>
+      </header>
+
+      <Profile profile={profile} />
+      <ContributionGraph data={contributions} />
+      <TopLanguages languages={languages} />
+
+      <footer class="page-footer">
+        <span>Built with Astro · Data from GitHub API</span>
+      </footer>
+    </>
+  )}
+</BaseLayout>
+
+<style>
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+
+  .header-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    background: var(--accent-3);
+    border-radius: 50%;
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  .header-time {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+
+  .page-footer {
+    margin-top: 40px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 50vh;
+    text-align: center;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+  }
+
+  .error-icon { font-size: 2rem; }
+
+  .error-state code {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    background: var(--bg-card);
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+  }
+</style>
+
+<script>
+  function updateTime() {
+    const el = document.getElementById('current-time');
+    if (!el) return;
+    el.textContent = new Date().toLocaleTimeString('en', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      timeZone: 'Asia/Jakarta',
+      hour12: false
+    }) + ' WIB';
+  }
+  updateTime();
+  setInterval(updateTime, 1000);
+</script>

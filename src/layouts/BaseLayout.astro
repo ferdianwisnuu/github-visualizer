@@ -1,0 +1,116 @@
+---
+const { title = 'GitHub Visualizer' } = Astro.props;
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #0f0f1a;
+      --bg-card: #12121f;
+      --bg-card-hover: #16162a;
+      --border: #1e1e35;
+      --border-accent: #2a2a4a;
+      --text-primary: #e8e8f0;
+      --text-secondary: #7a7a9a;
+      --text-muted: #4a4a6a;
+      --accent: #5b8dee;
+      --accent-glow: rgba(91, 141, 238, 0.15);
+      --accent-2: #a78bfa;
+      --accent-3: #34d399;
+      --contribution-0: #0d0d1a;
+      --contribution-1: #0e2a1a;
+      --contribution-2: #0f4a28;
+      --contribution-3: #10703a;
+      --contribution-4: #12a050;
+      --contribution-5: #34d399;
+      --font-display: 'Syne', sans-serif;
+      --font-mono: 'Space Mono', monospace;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+      --shadow-accent: 0 0 40px rgba(91, 141, 238, 0.08);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-display);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: 
+        radial-gradient(ellipse at 20% 20%, rgba(91, 141, 238, 0.04) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(167, 139, 250, 0.04) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page-wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 60px 24px 100px;
+    }
+
+    .noise-overlay {
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .fade-up { animation: fadeUp 0.6s ease forwards; }
+    .fade-up-delay-1 { animation-delay: 0.1s; opacity: 0; }
+    .fade-up-delay-2 { animation-delay: 0.2s; opacity: 0; }
+    .fade-up-delay-3 { animation-delay: 0.3s; opacity: 0; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--border-accent); border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <div class="noise-overlay"></div>
+  <div class="page-wrapper">
+    <slot />
+  </div>
+</body>
+</html>
